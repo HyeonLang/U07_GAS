@@ -17,6 +17,8 @@ ACPlayer::ACPlayer()
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationYaw = false;
+
+	AttackDelay = 0.2f;
 }
 
 void ACPlayer::BeginPlay()
@@ -61,11 +63,22 @@ void ACPlayer::MoveRight(float Value)
 
 void ACPlayer::PrimaryAction()
 {
+	if (AttackMontage)
+	{
+		PlayAnimMontage(AttackMontage);
+	}
+
+	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAction, this, &ACPlayer::PrimaryAction_TimeElapsed, AttackDelay);
+}
+
+void ACPlayer::PrimaryAction_TimeElapsed()
+{
 	FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
 	FTransform SpawnTM(GetControlRotation(), HandLocation);
 
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParams.Instigator = this;
 
 	if (ensure(MagicBallClass))
 	{
