@@ -8,6 +8,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class UCInteractionComponent;
 class UAnimMontage;
+class UCAttributeComponent;
 
 UCLASS()
 class GAS_API ACPlayer : public ACharacter
@@ -27,9 +28,8 @@ protected:
 
 	void PrimaryAction();
 	void PrimaryAction_TimeElapsed();
-	
-	void PrimaryInteraction();
 
+	void PrimaryInteraction();
 
 protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
@@ -41,6 +41,9 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
 	UCInteractionComponent* InteractionComp;
 
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Components")
+	UCAttributeComponent* AttributeComp;
+
 protected:
 	UPROPERTY(EditAnywhere, Category = "Action")
 	float AttackDelay;
@@ -51,6 +54,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Action")
 	UAnimMontage* AttackMontage;
 
+
 private:
 	FTimerHandle TimerHandle_PrimaryAction;
+
 };

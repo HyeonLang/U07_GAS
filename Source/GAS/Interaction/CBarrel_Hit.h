@@ -17,19 +17,20 @@ public:
 	ACBarrel_Hit();
 
 protected:
-	virtual void PostInitializeComponents() override;
+	void PostInitializeComponents() override;
 
 private:
 	UFUNCTION()
-		void OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	void OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
-		UStaticMeshComponent* MeshComp;
+	UStaticMeshComponent* MeshComp;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
-		URadialForceComponent* ForceComp;
+	URadialForceComponent* ForceComp;
 
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* Explosion;
+
 };

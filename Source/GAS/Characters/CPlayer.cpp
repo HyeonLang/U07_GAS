@@ -3,6 +3,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CInteractionComponent.h"
+#include "Components/CAttributeComponent.h"
 
 ACPlayer::ACPlayer()
 {
@@ -14,6 +15,7 @@ ACPlayer::ACPlayer()
 	CameraComp->SetupAttachment(SpringArmComp);
 
 	InteractionComp = CreateDefaultSubobject<UCInteractionComponent>("InteractionComp");
+	AttributeComp = CreateDefaultSubobject<UCAttributeComponent>("AttributeComp");
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationYaw = false;
@@ -73,15 +75,15 @@ void ACPlayer::PrimaryAction()
 
 void ACPlayer::PrimaryAction_TimeElapsed()
 {
-	FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
-	FTransform SpawnTM(GetControlRotation(), HandLocation);
-
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	SpawnParams.Instigator = this;
-
 	if (ensure(MagicBallClass))
 	{
+		FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+		FTransform SpawnTM(GetControlRotation(), HandLocation);
+
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		SpawnParams.Instigator = this;
+	
 		GetWorld()->SpawnActor<AActor>(MagicBallClass, SpawnTM, SpawnParams);
 	}
 }
