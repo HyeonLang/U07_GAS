@@ -29,6 +29,14 @@ protected:
 	void PrimaryAction();
 	void PrimaryAction_TimeElapsed();
 
+	void SecondaryAction();
+	void SecondaryAction_TimeElapsed();
+
+	void ThirdAction();
+	void ThirdAction_TimeElapsed();
+
+	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
+
 	void PrimaryInteraction();
 
 protected:
@@ -52,10 +60,18 @@ protected:
 	TSubclassOf<AActor> MagicBallClass;
 
 	UPROPERTY(EditAnywhere, Category = "Action")
+	TSubclassOf<AActor> WarpBallClass;
+
+	UPROPERTY(EditAnywhere, Category = "Action")
+	TSubclassOf<AActor> BlackHoleClass;
+
+	UPROPERTY(EditAnywhere, Category = "Action")
 	UAnimMontage* AttackMontage;
 
 
 private:
 	FTimerHandle TimerHandle_PrimaryAction;
+	FTimerHandle TimerHandle_SecondaryAction;
+	FTimerHandle TimerHandle_ThirdAction;
 
 };
