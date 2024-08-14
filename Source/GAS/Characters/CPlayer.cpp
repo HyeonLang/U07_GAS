@@ -23,9 +23,11 @@ ACPlayer::ACPlayer()
 	AttackDelay = 0.2f;
 }
 
-void ACPlayer::BeginPlay()
+void ACPlayer::PostInitializeComponents()
 {
-	Super::BeginPlay();
+	Super::PostInitializeComponents();
+
+	AttributeComp->OnHealthChanged.AddDynamic(this, &ACPlayer::OnHealthChanged);
 }
 
 void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -46,6 +48,16 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("ThirdAction", EInputEvent::IE_Pressed, this, &ACPlayer::ThirdAction);
 	PlayerInputComponent->BindAction("PrimaryInteraction", EInputEvent::IE_Pressed, this, &ACPlayer::PrimaryInteraction);
 }
+
+void ACPlayer::OnHealthChanged(AActor* InstigatorActor, UCAttributeComponent* OwningComp, float NewHealth, float Delta)
+{
+	if (NewHealth <= 0.f && Delta < 0.f)
+	{
+		APlayerController* PC = GetController<APlayerController>();
+		DisableInput(PC);
+	}
+}
+
 
 void ACPlayer::MoveForward(float Value)
 {
