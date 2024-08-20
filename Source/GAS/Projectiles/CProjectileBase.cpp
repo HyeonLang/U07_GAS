@@ -11,7 +11,7 @@ ACProjectileBase::ACProjectileBase()
 	RootComponent = SphereComp;
 
 	EffectComp = CreateDefaultSubobject<UParticleSystemComponent>("EffectComp");
-	EffectComp->SetupAttachment(SphereComp);
+	EffectComp->SetupAttachment(RootComponent);
 
 	MoveComp = CreateDefaultSubobject<UProjectileMovementComponent>("MoveComp");
 	MoveComp->InitialSpeed = 8000.f;
@@ -23,7 +23,7 @@ ACProjectileBase::ACProjectileBase()
 void ACProjectileBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	SphereComp->OnComponentHit.AddDynamic(this, &ACProjectileBase::OnActorHit);
 }
 
@@ -37,8 +37,7 @@ void ACProjectileBase::Explode_Implementation()
 	if (!IsPendingKill())
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(this, ImpactVFX, GetActorLocation(), GetActorRotation());
+
 		Destroy();
 	}
 }
-
-

@@ -58,7 +58,6 @@ void ACPlayer::OnHealthChanged(AActor* InstigatorActor, UCAttributeComponent* Ow
 	}
 }
 
-
 void ACPlayer::MoveForward(float Value)
 {
 	FRotator ControlRot = GetControlRotation();
@@ -126,11 +125,11 @@ void ACPlayer::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
 {
 	if (ensure(ClassToSpawn))
 	{
+		FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		SpawnParams.Instigator = this;
-
-		FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
 
 		FCollisionShape Shape;
 		Shape.SetSphere(20.f);
@@ -150,9 +149,10 @@ void ACPlayer::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
 		{
 			TraceEnd = Hit.ImpactPoint;
 		}
+		
+		FRotator ProjectionRotation = FRotationMatrix::MakeFromX(TraceEnd - HandLocation).Rotator();
 
-		FRotator ProjectileRotation = FRotationMatrix::MakeFromX(TraceEnd - HandLocation).Rotator();
-		FTransform SpawnTM(ProjectileRotation, HandLocation);
+		FTransform SpawnTM(ProjectionRotation, HandLocation);
 		GetWorld()->SpawnActor<AActor>(ClassToSpawn, SpawnTM, SpawnParams);
 	}
 }

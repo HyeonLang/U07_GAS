@@ -1,4 +1,3 @@
-
 #include "CTargetDummy.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/CAttributeComponent.h"
@@ -25,6 +24,5 @@ void ACTargetDummy::OnHealthChanged(AActor* InstigatorActor, UCAttributeComponen
 		MeshComp->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->TimeSeconds);
 	}
 }
-
 
 

@@ -20,12 +20,12 @@ protected:
 
 protected:
 	UFUNCTION()
-	void OnHealthChanged(AActor* InstigatorActor, UCAttributeComponent* OwningComp, float NewHealth, float Delta);
+	void OnHealthChanged(AActor* InstigatorActor, class UCAttributeComponent* OwningComp, float NewHealth, float Delta);
 
 protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
-		UStaticMeshComponent* MeshComp;
+	UStaticMeshComponent* MeshComp;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
-		UCAttributeComponent* AttributeComp;
+	UCAttributeComponent* AttributeComp;
 };

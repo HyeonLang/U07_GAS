@@ -5,8 +5,7 @@
 
 ACWarpBall::ACWarpBall()
 {
-	DetonateDelay = 0.1f;
-	TeleportDelay = 0.1f;
+	DetonateDelay = TeleportDelay = 0.2f;
 
 	MoveComp->InitialSpeed = 6000.f;
 }
@@ -29,9 +28,8 @@ void ACWarpBall::Explode_Implementation()
 
 	SetActorEnableCollision(false);
 
-	FTimerHandle TimerHandle_Teleport;
-	GetWorldTimerManager().SetTimer(TimerHandle_Teleport, this, &ACWarpBall::TeleportInstigator, TeleportDelay);
-
+	FTimerHandle TimeHandle_Teleport;
+	GetWorldTimerManager().SetTimer(TimeHandle_Teleport, this, &ACWarpBall::TeleportInstigator, TeleportDelay);
 }
 
 void ACWarpBall::TeleportInstigator()
@@ -44,4 +42,5 @@ void ACWarpBall::TeleportInstigator()
 	}
 
 	Destroy();
+
 }

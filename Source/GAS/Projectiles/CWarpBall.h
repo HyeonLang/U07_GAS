@@ -11,22 +11,21 @@ class GAS_API ACWarpBall : public ACProjectileBase
 
 public:
 	ACWarpBall();
-
+	
 protected:
 	virtual void BeginPlay() override;
 
 protected:
 	virtual void Explode_Implementation() override;
 
-protected:
 	void TeleportInstigator();
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Detonate")
 	float DetonateDelay;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Teleport")
+	UPROPERTY(EditDefaultsOnly, Category = "Detonate")
 	float TeleportDelay;
-	
+
 	FTimerHandle TimeHandle_DelayDetonate;
 };

@@ -7,7 +7,6 @@ void UCBTService_CheckAttackRange::TickNode(UBehaviorTreeComponent& OwnerComp, u
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
 	UBlackboardComponent* BB = OwnerComp.GetBlackboardComponent();
-
 	if (ensure(BB))
 	{
 		AActor* TargetActor = Cast<AActor>(BB->GetValueAsObject("TargetActor"));
@@ -29,9 +28,11 @@ void UCBTService_CheckAttackRange::TickNode(UBehaviorTreeComponent& OwnerComp, u
 					}
 
 					BB->SetValueAsBool(bInRangeKey.SelectedKeyName, bInRange && bLOS);
-					
 				}
 			}
 		}
 	}
+
+
+	
 }

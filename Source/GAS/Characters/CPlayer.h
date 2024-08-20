@@ -24,8 +24,7 @@ protected:
 
 protected:
 	UFUNCTION()
-		void OnHealthChanged(AActor* InstigatorActor, UCAttributeComponent* OwningComp, float NewHealth, float Delta);
-
+	void OnHealthChanged(AActor* InstigatorActor, UCAttributeComponent* OwningComp, float NewHealth, float Delta);
 
 protected:
 	void MoveForward(float Value);
@@ -72,7 +71,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Action")
 	UAnimMontage* AttackMontage;
-
 
 private:
 	FTimerHandle TimerHandle_PrimaryAction;

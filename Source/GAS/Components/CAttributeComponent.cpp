@@ -27,5 +27,5 @@ bool UCAttributeComponent::ApplyHealthChange(float Delta)
 
 bool UCAttributeComponent::IsAlive() const
 {
-	return 0.f < Health;
+	return Health > 0.f;
 }

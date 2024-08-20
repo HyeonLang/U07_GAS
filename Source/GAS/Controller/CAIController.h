@@ -14,6 +14,6 @@ protected:
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
-	UBehaviorTree* BeHaviorTree;
+	UBehaviorTree* BehaviorTree;
 	
 };
