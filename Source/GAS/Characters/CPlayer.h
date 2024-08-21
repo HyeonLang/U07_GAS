@@ -9,6 +9,7 @@ class UCameraComponent;
 class UCInteractionComponent;
 class UAnimMontage;
 class UCAttributeComponent;
+class UParticleSystem;
 
 UCLASS()
 class GAS_API ACPlayer : public ACharacter
@@ -30,6 +31,7 @@ protected:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 
+
 	void PrimaryAction();
 	void PrimaryAction_TimeElapsed();
 
@@ -39,6 +41,7 @@ protected:
 	void ThirdAction();
 	void ThirdAction_TimeElapsed();
 
+	void PlayAttackAction();
 	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
 
 	void PrimaryInteraction();
@@ -71,6 +74,15 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Action")
 	UAnimMontage* AttackMontage;
+
+	UPROPERTY(EditAnywhere, Category = "Action")
+	UParticleSystem* MuzzleParticle;
+
+	UPROPERTY(EditAnywhere, Category = "Action")
+	FName HandSocketName;
+
+	UPROPERTY(EditAnywhere, Category = "Action")
+	FName TimeToHitParamName;
 
 private:
 	FTimerHandle TimerHandle_PrimaryAction;
