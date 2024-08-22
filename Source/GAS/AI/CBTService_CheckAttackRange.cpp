@@ -15,6 +15,7 @@ void UCBTService_CheckAttackRange::TickNode(UBehaviorTreeComponent& OwnerComp, u
 			AAIController* AIC = OwnerComp.GetAIOwner();
 			if (ensure(AIC))
 			{
+
 				APawn* BotPawn = AIC->GetPawn();
 				if (ensure(BotPawn))
 				{

@@ -16,11 +16,11 @@ void ACPotion::Interact_Implementation(APawn* InstigatorPawn)
 		return;
 	}
 
-	UCAttributeComponent* AttributeComp = Cast<UCAttributeComponent>(InstigatorPawn->GetComponentByClass(UCAttributeComponent::StaticClass()));
+	UCAttributeComponent* AttributeComp = UCAttributeComponent::GetAttributes(InstigatorPawn);
 	
 	if (ensure(AttributeComp) && !AttributeComp->IsFullHealth())
 	{
-		if (AttributeComp->ApplyHealthChange(AttributeComp->GetMaxHealth()))
+		if (AttributeComp->ApplyHealthChange(this, AttributeComp->GetMaxHealth()))
 		{
 			HideAndCooldown();
 		}
