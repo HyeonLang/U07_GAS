@@ -18,8 +18,12 @@ public:
 protected:
 	virtual void StartPlay() override;
 
+	// Kill
+public:
 	UFUNCTION(Exec)
 	void KillAll();
+
+	virtual void OnActorKilled(AActor* VictimActor, AActor* Killer);
 
 	// Spawn Bots
 protected:
@@ -42,4 +46,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	UCurveFloat* SpawnCurve;
+
+	UFUNCTION()
+	void RespawnPlayerElapsed(AController* Controller);
+
+	
 };
