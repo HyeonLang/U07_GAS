@@ -20,7 +20,7 @@ void ACMagicBall::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 {
 	if (OtherActor && OtherActor != GetInstigator())
 	{
-
+		UE_LOG(LogTemp, Log, TEXT("%s"), *GetNameSafe(OtherActor));
 		if (UCFunctionLibrary::ApplyDirectionDamage(GetInstigator(), OtherActor, DamageAmount, SweepResult))
 		{
 			Explode();
