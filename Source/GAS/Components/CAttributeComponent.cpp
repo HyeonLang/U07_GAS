@@ -70,9 +70,6 @@ bool UCAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delt
 		}
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("PrevHealth is : %f"), PrevHealth);
-	UE_LOG(LogTemp, Log, TEXT("Health is : %f"), Health);
-	UE_LOG(LogTemp, Log, TEXT("Damage is : %f"), Delta);
 	return !FMath::IsNearlyZero(ActualDelta);
 }
 

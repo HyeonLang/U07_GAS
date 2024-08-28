@@ -9,6 +9,10 @@ ACPickupBase::ACPickupBase()
 	RootComponent = SphereComp;
 	RespawnTime = 10.f;
 
+	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("MeshComp");
+	MeshComp->SetupAttachment(RootComponent);
+	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 }
 
 void ACPickupBase::Interact_Implementation(APawn* InstigatorPawn)

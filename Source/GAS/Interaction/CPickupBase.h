@@ -7,7 +7,7 @@
 
 class USphereComponent;
 
-UCLASS()
+UCLASS(Abstract)
 class GAS_API ACPickupBase : public AActor, public ICGameplayInterface
 {
 	GENERATED_BODY()
@@ -26,6 +26,9 @@ public:
 	void SetPickupState(bool bNewActive);
 
 protected:
+	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
+	UStaticMeshComponent* MeshComp;
+
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
 	USphereComponent* SphereComp;
 

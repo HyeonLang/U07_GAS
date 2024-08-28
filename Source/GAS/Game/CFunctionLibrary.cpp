@@ -19,7 +19,9 @@ bool UCFunctionLibrary::ApplyDirectionDamage(AActor* DamageCauser, AActor* Targe
 		if (HitComp && HitComp->IsSimulatingPhysics(HitResult.BoneName))
 		{
 			HitComp->AddImpulseAtLocation(-HitResult.ImpactNormal * 300000.f, HitResult.ImpactPoint, HitResult.BoneName);
+
 		}
+		return true;
 	}
 	return false;
 }

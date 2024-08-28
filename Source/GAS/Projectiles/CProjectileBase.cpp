@@ -45,6 +45,8 @@ void ACProjectileBase::Explode_Implementation()
 {
 	if (!IsPendingKill())
 	{
+		UE_LOG(LogTemp, Log, TEXT("Explode"));
+		
 		UGameplayStatics::SpawnEmitterAtLocation(this, ImpactVFX, GetActorLocation(), GetActorRotation());
 
 		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation());

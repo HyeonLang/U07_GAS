@@ -42,8 +42,11 @@ void UCAction::StopAction_Implementation(AActor* Instigator)
 UWorld* UCAction::GetWorld() const
 {
 	UCActionComponent* ActionComp = Cast<UCActionComponent>(GetOuter());
-	//if (ActionComp)
-	return ActionComp->GetWorld();
+	if (ActionComp)
+	{
+		return ActionComp->GetWorld();
+	}
+	return nullptr;
 }
 
 UCActionComponent* UCAction::GetOwingComponent() const
