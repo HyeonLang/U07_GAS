@@ -29,11 +29,14 @@ public:
 
 protected:
 	UFUNCTION(BlueprintCallable, Category = "Action")
-	UCActionComponent* GetOwingComponent() const;
+	UCActionComponent* GetOwningComponent() const;
 
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "Action")
 	FName ActionName;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Action")
+	bool bAutoStart;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "GameplayTag")
@@ -43,5 +46,6 @@ protected:
 	FGameplayTagContainer BlockedTags;
 
 protected:
+
 	bool bIsRunning;
 };

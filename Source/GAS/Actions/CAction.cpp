@@ -8,7 +8,7 @@ bool UCAction::CanStart_Implementation(AActor* Instigator)
 		return false;
 	}
 
-	UCActionComponent* ActionComp = GetOwingComponent();
+	UCActionComponent* ActionComp = GetOwningComponent();
 
 	if (ActionComp->ActiveGamePlayTags.HasAny(BlockedTags))
 	{
@@ -22,7 +22,7 @@ void UCAction::StartAction_Implementation(AActor* Instigator)
 {
 	UE_LOG(LogTemp, Log, TEXT("Running : %s"), *GetNameSafe(this));
 
-	UCActionComponent* ActionComp = GetOwingComponent();
+	UCActionComponent* ActionComp = GetOwningComponent();
 	ActionComp->ActiveGamePlayTags.AppendTags(GrantTags);
 
 	bIsRunning = true;
@@ -32,7 +32,7 @@ void UCAction::StopAction_Implementation(AActor* Instigator)
 {
 	UE_LOG(LogTemp, Log, TEXT("Stopped : %s"), *GetNameSafe(this));
 
-	UCActionComponent* ActionComp = GetOwingComponent();
+	UCActionComponent* ActionComp = GetOwningComponent();
 	ActionComp->ActiveGamePlayTags.RemoveTags(GrantTags);
 
 	bIsRunning = false;
@@ -49,7 +49,7 @@ UWorld* UCAction::GetWorld() const
 	return nullptr;
 }
 
-UCActionComponent* UCAction::GetOwingComponent() const
+UCActionComponent* UCAction::GetOwningComponent() const
 {
 	return Cast<UCActionComponent>(GetOuter());
 }
