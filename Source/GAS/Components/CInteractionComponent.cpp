@@ -27,7 +27,13 @@ void UCInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	FindNearestInteractable();
+	//Local
+	APawn* OwnerPawn = Cast<APawn>(GetOwner());
+	if (OwnerPawn->IsLocallyControlled())
+	{
+		FindNearestInteractable();
+
+	}
 }
 
 void UCInteractionComponent::FindNearestInteractable()
@@ -60,7 +66,7 @@ void UCInteractionComponent::FindNearestInteractable()
 	{
 		if (bDrawDebug)
 		{
-			DrawDebugSphere(GetWorld(), Hit.ImpactPoint, TraceRadius, 20, LineColor, false, 3.f);
+			DrawDebugSphere(GetWorld(), Hit.ImpactPoint, TraceRadius, 20, LineColor, false, 0.f);
 		}
 
 		AActor* HitActor = Hit.GetActor();
@@ -82,29 +88,45 @@ void UCInteractionComponent::FindNearestInteractable()
 		{
 			DefaultWidgetInstance = CreateWidget<UCWorldWidget>(GetWorld(), DefaultWidgetClass);
 		}
+
 		if (DefaultWidgetInstance)
 		{
 			DefaultWidgetInstance->AttachToActor = FocusedActor;
-			if (DefaultWidgetInstance->IsInViewport())
+			if (!DefaultWidgetInstance->IsInViewport())
 			{
 				DefaultWidgetInstance->AddToViewport();
 			}
 		}
 	}
+	else
+	{
+		if (DefaultWidgetInstance)
+		{
+			DefaultWidgetInstance->RemoveFromParent();
+
+		}
+	}
 
 	if (bDrawDebug)
 	{
-		DrawDebugLine(GetWorld(), EyeLocation, End, LineColor, false, 2.f, 0, 2.f);
+		DrawDebugLine(GetWorld(), EyeLocation, End, LineColor, false, 0.f, 0, 2.f);
 	}
 }
 
 void UCInteractionComponent::PrimaryInteraction()
 {
-	if (FocusedActor == nullptr)
+	// 로컬 변수를 매개변수로 서버로 넘겨 서버 rpc 함수를 실행
+	// RPC 이면서 액터를 상속받은 포인터를 넘기면 도메인(채널)으로 바꿔서 넘긴다. 
+	ServerInteract(FocusedActor);
+}
+
+void UCInteractionComponent::ServerInteract_Implementation(AActor* InFocused)
+{
+	if (InFocused == nullptr)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Orange, "There is no interable object.");
 		return;
 	}
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
-	ICGameplayInterface::Execute_Interact(FocusedActor, OwnerPawn);
+	ICGameplayInterface::Execute_Interact(InFocused, OwnerPawn);
 }

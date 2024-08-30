@@ -19,6 +19,7 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	// server에서 호출당함
 	void Interact_Implementation(APawn* InstigatorPawn) override;
 
 public:
@@ -31,4 +32,10 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Components")
 	UStaticMeshComponent* LidMesh;
+
+	UPROPERTY(ReplicatedUsing = "OnRep_LidOpen")
+	bool bLidOpen;
+
+	UFUNCTION()
+	void OnRep_LidOpen();
 };
