@@ -32,11 +32,11 @@ void ACBot::PostInitializeComponents()
 	AttributeComp->OnHealthChanged.AddDynamic(this, &ACBot::OnHealthChanged);
 }
 
-void ACBot::OnSeePawn(APawn* Pawn)
+void ACBot::OnSeePawn_Implementation(APawn* Pawn)
 {
 	SetTargetActor(Pawn);
 
-	DrawDebugString(GetWorld(), GetActorLocation(), "I found you!!", nullptr, FColor::White, 3.f, true);
+	//DrawDebugString(GetWorld(), GetActorLocation(), "I found you!!", nullptr, FColor::White, 3.f, true);
 	
 }
 

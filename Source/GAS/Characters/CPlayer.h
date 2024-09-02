@@ -33,6 +33,9 @@ protected:
 	UFUNCTION()
 	void OnHealthChanged(AActor* InstigatorActor, UCAttributeComponent* OwningComp, float NewHealth, float Delta);
 
+	UFUNCTION()
+	void OnManaChanged(AActor* InstigatorActor, UCAttributeComponent* OwningComp, float NewMana, float Delta);
+
 protected:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
@@ -69,4 +72,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Action")
 	FName TimeToHitParamName;
 
+	UPROPERTY(EditAnywhere, Category = "Action")
+	float ChargedMana;
 };

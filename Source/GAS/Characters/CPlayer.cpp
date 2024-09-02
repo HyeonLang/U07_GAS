@@ -23,6 +23,8 @@ ACPlayer::ACPlayer()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationYaw = false;
 
+	ChargedMana = 20.f;
+
 	TimeToHitParamName = "TimeToHit";
 }
 
@@ -36,6 +38,7 @@ void ACPlayer::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	AttributeComp->OnHealthChanged.AddDynamic(this, &ACPlayer::OnHealthChanged);
+	AttributeComp->OnManaChanged.AddDynamic(this, &ACPlayer::OnManaChanged);
 }
 
 void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -70,6 +73,7 @@ void ACPlayer::OnHealthChanged(AActor* InstigatorActor, UCAttributeComponent* Ow
 	if (Delta < 0)
 	{
 		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
+		AttributeComp->ApplyManaChange(this, ChargedMana);
 	}
 
 	if (NewHealth <= 0.f && Delta < 0.f)
@@ -77,6 +81,10 @@ void ACPlayer::OnHealthChanged(AActor* InstigatorActor, UCAttributeComponent* Ow
 		APlayerController* PC = GetController<APlayerController>();
 		DisableInput(PC);
 	}
+}
+
+void ACPlayer::OnManaChanged(AActor* InstigatorActor, UCAttributeComponent* OwningComp, float NewMana, float Delta)
+{
 }
 
 void ACPlayer::MoveForward(float Value)

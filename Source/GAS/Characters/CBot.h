@@ -21,10 +21,10 @@ public:
 protected:
 	virtual void PostInitializeComponents() override;
 
-private:
-	UFUNCTION()
+	UFUNCTION(BlueprintNativeEvent)
 	void OnSeePawn(APawn* Pawn);
 
+private:
 	UFUNCTION()
 	void OnHealthChanged(AActor* InstigatorActor, UCAttributeComponent* OwningComp, float NewHealth, float Delta);
 

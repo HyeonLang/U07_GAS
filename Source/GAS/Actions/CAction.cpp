@@ -1,9 +1,20 @@
 #include "CAction.h"
 #include "Components/CActionComponent.h"
+#include "Components/CAttributeComponent.h"
+
+UCAction::UCAction()
+{
+	CostMana = 0.f;
+}
 
 bool UCAction::CanStart_Implementation(AActor* Instigator)
 {
 	if (IsRunning())
+	{
+		return false;
+	}
+
+	if (CostMana > UCAttributeComponent::GetAttributes(Instigator)->GetMana())
 	{
 		return false;
 	}
@@ -24,6 +35,10 @@ void UCAction::StartAction_Implementation(AActor* Instigator)
 
 	UCActionComponent* ActionComp = GetOwningComponent();
 	ActionComp->ActiveGamePlayTags.AppendTags(GrantTags);
+	if (CostMana > 0)
+	{
+		UCAttributeComponent::GetAttributes(Instigator)->ApplyManaChange(Instigator, -CostMana);
+	}
 
 	bIsRunning = true;
 }

@@ -11,6 +11,8 @@ UCLASS(Blueprintable)
 class GAS_API UCAction : public UObject
 {
 	GENERATED_BODY()
+public:
+	UCAction();
 
 public:
 	UFUNCTION(BlueprintNativeEvent, Category = "Action")
@@ -46,6 +48,8 @@ protected:
 	FGameplayTagContainer BlockedTags;
 
 protected:
+	UPROPERTY(EditAnywhere, Category = "Action")
+	float CostMana;
 
 	bool bIsRunning;
 };

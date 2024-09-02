@@ -43,6 +43,7 @@ void UCActionComponent::AddAction(AActor* Instigator, TSubclassOf<UCAction> Acti
 		Actions.Add(NewAction);
 		if (NewAction->bAutoStart && NewAction->CanStart(Instigator))
 		{
+			UE_LOG(LogTemp, Log, TEXT("%s"), *GetNameSafe(NewAction));
 			NewAction->StartAction(Instigator);
 		}
 	}
