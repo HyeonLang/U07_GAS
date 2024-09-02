@@ -34,6 +34,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	bool StopActionByName(AActor* Instigator, FName ActionName);
 
+protected:
+	// RPC 리플리케이트
+	UFUNCTION(Reliable, Server)
+	void ServerStartAction(AActor* Instigator, FName ActionName);
+
+	//UFUNCTION(Reliable, Server)
+	//void ServerStopAction(AActor* Instigator, FName ActionName);
+
 public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayTag")
 	FGameplayTagContainer ActiveGamePlayTags;

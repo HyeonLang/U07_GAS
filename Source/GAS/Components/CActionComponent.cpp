@@ -5,6 +5,8 @@ UCActionComponent::UCActionComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
+	// 컴포넌트 리플리케이트
+	SetIsReplicatedByDefault(true);
 }
 
 
@@ -71,12 +73,25 @@ bool UCActionComponent::StartActionByName(AActor* Instigator, FName ActionName)
 				GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, Message);
 				continue;
 			}
+
+			// 1.로컬에서 실행시키고 2. 서버로 보냄 (조작감)
+			if (!GetOwner()->HasAuthority())
+			{
+				// 서버에서 실행되지만 서버에서는 여기로 들어오지 않음.
+				ServerStartAction(Instigator, ActionName);
+			}
+
 			Action->StartAction(Instigator);
 			return true;
 			
 		}
 	}
 	return false;
+}
+
+void UCActionComponent::ServerStartAction_Implementation(AActor* Instigator, FName ActionName)
+{
+	StartActionByName(Instigator, ActionName);
 }
 
 bool UCActionComponent::StopActionByName(AActor* Instigator, FName ActionName)
@@ -94,4 +109,5 @@ bool UCActionComponent::StopActionByName(AActor* Instigator, FName ActionName)
 	}
 	return false;
 }
+
 

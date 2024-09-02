@@ -13,6 +13,8 @@ ACPickupBase::ACPickupBase()
 	MeshComp->SetupAttachment(RootComponent);
 	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+	SetReplicates(true);
+
 }
 
 void ACPickupBase::Interact_Implementation(APawn* InstigatorPawn)
