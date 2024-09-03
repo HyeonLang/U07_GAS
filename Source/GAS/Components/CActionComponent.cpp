@@ -1,5 +1,8 @@
 #include "CActionComponent.h"
+#include "Net/UnrealNetwork.h"
+#include "Engine/ActorChannel.h"
 #include "Actions/CAction.h"
+#include "Gas.h"
 
 UCActionComponent::UCActionComponent()
 {
@@ -14,9 +17,13 @@ void UCActionComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	for (TSubclassOf<UCAction> ActionClass : DefaultActions)
+	// 서버 캐릭터들에서만 액션 등록 후 리플리케이트
+	if (GetOwner()->HasAuthority()) // 스폰 위치가 Authority
 	{
-		AddAction(GetOwner(), ActionClass);
+		for (TSubclassOf<UCAction> ActionClass : DefaultActions)
+		{
+			AddAction(GetOwner(), ActionClass);
+		}
 	}
 	
 }
@@ -26,8 +33,30 @@ void UCActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	FString Message = GetNameSafe(GetOwner()) + " : " + ActiveGamePlayTags.ToStringSimple();
-	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::White, Message);
+	for (UCAction* Action : Actions)
+	{
+		FString ActionMsg = FString::Printf(TEXT("[%s] Action : %s"), 
+			*GetNameSafe(GetOwner()), *GetNameSafe(Action));
+
+		FColor TextColor = Action->IsRunning() ? FColor::Blue : FColor::White;
+
+		LogOnScreen(this, ActionMsg, TextColor, 0.f);
+	}
+}
+
+bool UCActionComponent::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags)
+{
+	bool bChangedSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+
+	for (UCAction* Action : Actions)
+	{
+		if (Action)
+		{
+			bChangedSomething |= Channel->ReplicateSubobject(Action, *Bunch, *RepFlags);
+		}
+	}
+
+	return bChangedSomething;
 }
 
 
@@ -38,10 +67,17 @@ void UCActionComponent::AddAction(AActor* Instigator, TSubclassOf<UCAction> Acti
 		return;
 	}
 
-	UCAction* NewAction = NewObject<UCAction>(this, ActionClass);
+	if (!GetOwner()->HasAuthority())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Client attempting to AddAction. [Class : %s]"), *GetNameSafe(ActionClass));
+		return;
+	}
+
+	UCAction* NewAction = NewObject<UCAction>(GetOwner(), ActionClass);
 
 	if (ensure(NewAction))
 	{
+		NewAction->SetOwningComponent(this);
 		Actions.Add(NewAction);
 		if (NewAction->bAutoStart && NewAction->CanStart(Instigator))
 		{
@@ -108,6 +144,13 @@ bool UCActionComponent::StopActionByName(AActor* Instigator, FName ActionName)
 		}
 	}
 	return false;
+}
+
+void UCActionComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UCActionComponent, Actions);
 }
 
 

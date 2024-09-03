@@ -48,6 +48,7 @@ bool UCAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delt
 		return false;
 	}
 
+
 	if (Delta < 0.f)
 	{
 		float DamageMultiplier = CVarDamageMultiplier.GetValueOnGameThread();
@@ -56,21 +57,25 @@ bool UCAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delt
 	}
 
 	float PrevHealth = Health;
-	Health = FMath::Clamp(Health += Delta, 0.f, MaxHealth);
+	float NewHealth = FMath::Clamp(Health + Delta, 0.f, MaxHealth); // 체력계산
+	float ActualDelta = NewHealth - PrevHealth;
 
-	float ActualDelta = Health - PrevHealth;
-
-	if (!FMath::IsNearlyZero(ActualDelta))
+	if (GetOwner()->HasAuthority()) // 서버에서만
 	{
-		NetMulticastHealthChanged(InstigatorActor, Health, ActualDelta);
-	}
+		Health = NewHealth;
 
-	if (ActualDelta < 0.f && Health <= 0.f)
-	{
-		ACGameMode* GM = GetWorld()->GetAuthGameMode<ACGameMode>();
-		if (GM)
+		if (!FMath::IsNearlyZero(ActualDelta))
 		{
-			GM->OnActorKilled(GetOwner(), InstigatorActor);
+			NetMulticastHealthChanged(InstigatorActor, Health, ActualDelta);
+		}
+
+		if (ActualDelta < 0.f && Health <= 0.f) // 죽은경우
+		{
+			ACGameMode* GM = GetWorld()->GetAuthGameMode<ACGameMode>();
+			if (GM)
+			{
+				GM->OnActorKilled(GetOwner(), InstigatorActor);
+			}
 		}
 	}
 

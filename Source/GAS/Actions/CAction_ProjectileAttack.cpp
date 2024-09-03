@@ -25,10 +25,14 @@ void UCAction_ProjectileAttack::StartAction_Implementation(AActor* Instigator)
 			UGameplayStatics::SpawnEmitterAttached(MuzzleParticle, Character->GetMesh(), HandSocketName, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
 		}
 
-		FTimerHandle TimerHandle_AttackAction;
-		FTimerDelegate Delegate;
-		Delegate.BindUFunction(this, "AttackDelay_Elapsed", Character);
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle_AttackAction, Delegate, AttackDelay, false);
+		// 매직볼 서버에서만 생성하고 리플리케이트하기 // 로컬에서는 생성 안함
+		if (Instigator->HasAuthority())
+		{
+			FTimerHandle TimerHandle_AttackAction;
+			FTimerDelegate Delegate;
+			Delegate.BindUFunction(this, "AttackDelay_Elapsed", Character);
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle_AttackAction, Delegate, AttackDelay, false);
+		}
 	}
 }
 

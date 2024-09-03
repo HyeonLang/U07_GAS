@@ -33,7 +33,7 @@ void ACMagicBall::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 		if (UCFunctionLibrary::ApplyDirectionDamage(GetInstigator(), OtherActor, DamageAmount, SweepResult))
 		{
 			Explode();
-			if (ActionComp && BurningActionClass)
+			if (ActionComp && BurningActionClass && HasAuthority())
 			{
 				ActionComp->AddAction(GetInstigator(), BurningActionClass);
 			}

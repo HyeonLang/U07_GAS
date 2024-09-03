@@ -21,6 +21,10 @@ protected:
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	// Object류 클래스 리플리케이트 준비작업 1 재정의
+	bool ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
+
+
 public:
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	void AddAction(AActor* Instigator, TSubclassOf<UCAction> ActionClass);
@@ -50,7 +54,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Action")
 	TArray<TSubclassOf<UCAction>> DefaultActions;
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	TArray<UCAction*> Actions;
 
 	
