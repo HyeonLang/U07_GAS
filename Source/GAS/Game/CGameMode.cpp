@@ -63,6 +63,8 @@ void ACGameMode::OnActorKilled(AActor* VictimActor, AActor* Killer)
 
 		float RespawnDelay = 2.0f;
 		GetWorldTimerManager().SetTimer(TimerHandle_RespawnDelay, Delegate, RespawnDelay, false);
+
+		Player->SetLifeSpan(3.f);
 	}
 
 	APawn* KillerPawn = Cast<APawn>(Killer);

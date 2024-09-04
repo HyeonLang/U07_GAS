@@ -86,6 +86,15 @@ void UCActionComponent::AddAction(AActor* Instigator, TSubclassOf<UCAction> Acti
 	}
 }
 
+UCAction* UCActionComponent::GetAction(TSubclassOf<UCAction> ActionClass) const
+{
+	for (UCAction* Action : Actions)
+	{
+	}
+
+	return nullptr;
+}
+
 void UCActionComponent::RemoveAction(UCAction* ActionToRemove)
 {
 	if (!ensure(ActionToRemove && !ActionToRemove->IsRunning()))
@@ -138,12 +147,24 @@ bool UCActionComponent::StopActionByName(AActor* Instigator, FName ActionName)
 		{
 			if (Action->IsRunning())
 			{
+				// 1.로컬에서 실행시키고 2. 서버로 보냄 (조작감)
+				if (!GetOwner()->HasAuthority())
+				{
+					// 서버에서 실행되지만 서버에서는 여기로 들어오지 않음.
+					ServerStopAction(Instigator, ActionName);
+				}
+
 				Action->StopAction(Instigator);
 				return true;
 			}
 		}
 	}
 	return false;
+}
+
+void UCActionComponent::ServerStopAction_Implementation(AActor* Instigator, FName ActionName)
+{
+	StopActionByName(Instigator, ActionName);
 }
 
 void UCActionComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const

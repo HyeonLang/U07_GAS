@@ -28,7 +28,14 @@ private:
 	UFUNCTION()
 	void OnHealthChanged(AActor* InstigatorActor, UCAttributeComponent* OwningComp, float NewHealth, float Delta);
 
+
+protected:
+	UFUNCTION(BlueprintCallable, Category = "AI")
 	void SetTargetActor(AActor* NewTarget);
+
+	UFUNCTION(BlueprintCallable, Category = "AI")
+	AActor* GetTargetActor() const;
+
 protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
 	UPawnSensingComponent* PawnSesningComp;
@@ -42,8 +49,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	FName TimeToHitParamName;
 
+	UPROPERTY(EditDefaultsOnly, Category = "AI")
+	FName TargetActorKeyName;
+
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UUserWidget> HealthBarWidgetClass;
 
 	UCWorldWidget* HealthBarWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> SpottedWidgetClass;
 };

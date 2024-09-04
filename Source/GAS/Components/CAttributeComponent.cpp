@@ -9,6 +9,9 @@ UCAttributeComponent::UCAttributeComponent()
 	MaxHealth = 100.f;
 	Health = MaxHealth;
 
+	MaxRage = 100.f;
+	Rage = 0.f;
+
 	// 컴포넌트 리플리케이트
 	SetIsReplicatedByDefault(true); //생성자 전용 리플리케이트 Set
 }
@@ -87,6 +90,25 @@ void UCAttributeComponent::NetMulticastHealthChanged_Implementation(AActor* Inst
 	OnHealthChanged.Broadcast(InstigatorActor, this, NewHealth, Delta);
 }
 
+bool UCAttributeComponent::ApplyRageChange(AActor* InstigatorActor, float Delta)
+{
+	float PrevRage = Rage;
+	Rage = FMath::Clamp(Rage + Delta, 0.f, MaxRage); // Rage계산
+	float ActualDelta = Rage - PrevRage;
+
+	if (!FMath::IsNearlyZero(ActualDelta))
+	{
+		NetMulticastRageChanged(InstigatorActor, Rage, ActualDelta);
+	}
+
+	return !FMath::IsNearlyZero(ActualDelta);
+}
+
+void UCAttributeComponent::NetMulticastRageChanged_Implementation(AActor* InstigatorActor, float NewRage, float Delta)
+{
+	OnRageChanged.Broadcast(InstigatorActor, this, NewRage, Delta);
+}
+
 bool UCAttributeComponent::IsAlive() const
 {
 	return Health > 0.f;
@@ -105,6 +127,16 @@ float UCAttributeComponent::GetMaxHealth() const
 float UCAttributeComponent::GetHealth() const
 {
 	return Health;
+}
+
+float UCAttributeComponent::GetMaxRage() const
+{
+	return MaxRage;
+}
+
+float UCAttributeComponent::GetRage() const
+{
+	return Rage;
 }
 
 bool UCAttributeComponent::Kill(AActor* InstigatorActor)
