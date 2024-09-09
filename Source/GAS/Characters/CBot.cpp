@@ -2,12 +2,12 @@
 #include "Perception/PawnSensingComponent.h"
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "BrainComponent.h"
 #include "DrawDebugHelpers.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/CAttributeComponent.h"
 #include "Components/CActionComponent.h"
-#include "Components/CapsuleComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "BrainComponent.h"
 #include "UI/CWorldWidget.h"
 
 ACBot::ACBot()
@@ -18,7 +18,7 @@ ACBot::ACBot()
 
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
 	GetMesh()->SetGenerateOverlapEvents(true);
 
 	TimeToHitParamName = "TimeToHit";
@@ -41,13 +41,19 @@ void ACBot::OnSeePawn(APawn* Pawn)
 		if (GetTargetActor() != Pawn)
 		{
 			SetTargetActor(Pawn);
-			UCWorldWidget* SpottedWidget = CreateWidget<UCWorldWidget>(GetWorld(), SpottedWidgetClass);
-			if (SpottedWidget)
-			{
-				SpottedWidget->AttachToActor = this;
-				SpottedWidget->AddToViewport(10);
-			}
+
+			NetMulticastPawnSeen();
 		}
+	}
+}
+
+void ACBot::NetMulticastPawnSeen_Implementation()
+{
+	UCWorldWidget* SpottedWidget = CreateWidget<UCWorldWidget>(GetWorld(), SpottedWidgetClass);
+	if (SpottedWidget)
+	{
+		SpottedWidget->AttachToActor = this;
+		SpottedWidget->AddToViewport(10);
 	}
 }
 
@@ -55,22 +61,28 @@ void ACBot::OnHealthChanged(AActor* InstigatorActor, UCAttributeComponent* Ownin
 {
 	if (Delta < 0.f)
 	{
+		if (InstigatorActor != this)
+		{
+			SetTargetActor(InstigatorActor);
+		}
+
 		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
 
-		AAIController* AIC = GetController<AAIController>();
 		if (NewHealth <= 0.f)
 		{
+			AAIController* AIC = GetController<AAIController>();
 			if (AIC)
 			{
 				AIC->GetBrainComponent()->StopLogic("Killed");
 			}
 
-			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			GetCharacterMovement()->DisableMovement();
 			GetMesh()->SetAllBodiesSimulatePhysics(true);
 			GetMesh()->SetCollisionProfileName("Ragdoll");
 
-			SetLifeSpan(5.f);
+			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			GetCharacterMovement()->DisableMovement();
+
+			SetLifeSpan(10.f);
 			return;
 		}
 
@@ -83,14 +95,15 @@ void ACBot::OnHealthChanged(AActor* InstigatorActor, UCAttributeComponent* Ownin
 				HealthBarWidget->AddToViewport();
 			}
 		}
-		SetTargetActor(InstigatorActor);
+
+		
 	}
 }
 
 void ACBot::SetTargetActor(AActor* NewTarget)
 {
 	AAIController* AIC = GetController<AAIController>();
-	if (AIC && NewTarget && NewTarget != this)
+	if (AIC)
 	{
 		AIC->GetBlackboardComponent()->SetValueAsObject(TargetActorKeyName, NewTarget);
 	}

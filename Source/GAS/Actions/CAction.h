@@ -26,8 +26,6 @@ class GAS_API UCAction : public UObject
 	GENERATED_BODY()
 
 public:
-	// Object류 클래스 리플리케이트 준비작업
-	// 액터가 아닌 오브젝트상속 클래스의 리플리케이트를 도와줌
 	FORCEINLINE virtual bool IsSupportedForNetworking() const override
 	{
 		return true;
@@ -68,7 +66,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "GameplayTag")
 	FGameplayTagContainer BlockedTags;
 
-protected:
 	UPROPERTY(ReplicatedUsing = "OnRep_RepData")
 	FActionRepData RepData;
 
@@ -76,5 +73,5 @@ protected:
 	void OnRep_RepData();
 
 	UPROPERTY(Replicated)
-	UCActionComponent* OwningActionComp;
+	UCActionComponent* ActionComp;
 };

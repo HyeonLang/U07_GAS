@@ -1,5 +1,6 @@
 #include "CPlayerState.h"
-
+#include "CSaveGame.h"
+#include "Net/UnrealNetwork.h"
 
 void ACPlayerState::AddCredits(int32 Delta)
 {
@@ -39,8 +40,39 @@ bool ACPlayerState::RemoveCredits(int32 Delta)
 	return true;
 }
 
+void ACPlayerState::OnRep_Credits(int32 OldCredits)
+{
+	if (OnCreditsChanged.IsBound())
+	{
+		OnCreditsChanged.Broadcast(this, Credits, Credits - OldCredits);
+	}
+}
+
 int32 ACPlayerState::GetCredits() const
 {
 	return Credits;
 }
 
+void ACPlayerState::SavePlayerState_Implementation(UCSaveGame* SaveGame)
+{
+	if (SaveGame)
+	{
+		SaveGame->Credits = Credits;
+	}
+}
+
+void ACPlayerState::LoadPlayerState_Implementation(UCSaveGame* SaveGame)
+{
+	if (SaveGame)
+	{
+		AddCredits(SaveGame->Credits);
+	}
+}
+
+
+void ACPlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ACPlayerState, Credits);
+}

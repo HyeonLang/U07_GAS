@@ -29,4 +29,5 @@ protected:
 
 	FTimerHandle DurationHandle;
 	FTimerHandle PeriodHandle;
+
 };

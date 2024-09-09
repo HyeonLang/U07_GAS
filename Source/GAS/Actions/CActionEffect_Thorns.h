@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -15,7 +13,7 @@ class GAS_API UCActionEffect_Thorns : public UCActionEffect
 
 public:
 	UCActionEffect_Thorns();
-
+	
 public:
 	void StartAction_Implementation(AActor* Instigator) override;
 	void StopAction_Implementation(AActor* Instigator) override;
@@ -27,5 +25,4 @@ protected:
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Thorns", meta = (ClampMax = 1.00, ClampMin = 0.00))
 	float ReflectRatio;
-	
 };

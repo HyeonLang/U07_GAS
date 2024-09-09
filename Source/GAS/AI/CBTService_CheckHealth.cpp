@@ -3,8 +3,6 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Components/CAttributeComponent.h"
 
-#include "CBTService_CheckHealth.h"
-
 UCBTService_CheckHealth::UCBTService_CheckHealth()
 {
 	LowHealthFraction = 0.3f;

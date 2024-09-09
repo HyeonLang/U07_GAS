@@ -2,7 +2,6 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "AIController.h"
 
-
 UCBTService_CheckAttackRange::UCBTService_CheckAttackRange()
 {
 	AttackRange = 2000.f;
@@ -21,7 +20,6 @@ void UCBTService_CheckAttackRange::TickNode(UBehaviorTreeComponent& OwnerComp, u
 			AAIController* AIC = OwnerComp.GetAIOwner();
 			if (ensure(AIC))
 			{
-
 				APawn* BotPawn = AIC->GetPawn();
 				if (ensure(BotPawn))
 				{

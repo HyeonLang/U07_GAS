@@ -17,17 +17,17 @@ public:
 
 public:
 	virtual void StartAction_Implementation(AActor* Instigator) override;
-
+	
 protected:
 	UFUNCTION()
 	void AttackDelay_Elapsed(ACharacter* InstigatorCharacter);
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Action")
-	float AttackDelay;
+	TSubclassOf<AActor> ProjectileClass;
 
 	UPROPERTY(EditAnywhere, Category = "Action")
-	TSubclassOf<AActor> ProjectileClass;
+	float AttackDelay;
 
 	UPROPERTY(EditAnywhere, Category = "Action")
 	UAnimMontage* AttackMontage;

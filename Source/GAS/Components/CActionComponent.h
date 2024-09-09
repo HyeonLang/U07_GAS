@@ -20,10 +20,7 @@ protected:
 
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-	// Object류 클래스 리플리케이트 준비작업 1 재정의
 	bool ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
-
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Action")
@@ -42,7 +39,6 @@ public:
 	bool StopActionByName(AActor* Instigator, FName ActionName);
 
 protected:
-	// RPC 리플리케이트
 	UFUNCTION(Reliable, Server)
 	void ServerStartAction(AActor* Instigator, FName ActionName);
 
@@ -51,7 +47,7 @@ protected:
 
 public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayTag")
-	FGameplayTagContainer ActiveGamePlayTags;
+	FGameplayTagContainer ActiveGameplayTags;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Action")
@@ -59,6 +55,4 @@ protected:
 
 	UPROPERTY(Replicated)
 	TArray<UCAction*> Actions;
-
-	
 };

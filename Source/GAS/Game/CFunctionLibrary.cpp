@@ -8,6 +8,7 @@ bool UCFunctionLibrary::ApplyDamage(AActor* DamageCauser, AActor* TargetActor, f
 	{
 		return AttributeComp->ApplyHealthChange(DamageCauser, -DamageAmount);
 	}
+
 	return false;
 }
 
@@ -19,9 +20,9 @@ bool UCFunctionLibrary::ApplyDirectionDamage(AActor* DamageCauser, AActor* Targe
 		if (HitComp && HitComp->IsSimulatingPhysics(HitResult.BoneName))
 		{
 			HitComp->AddImpulseAtLocation(-HitResult.ImpactNormal * 300000.f, HitResult.ImpactPoint, HitResult.BoneName);
-
 		}
 		return true;
 	}
+
 	return false;
 }

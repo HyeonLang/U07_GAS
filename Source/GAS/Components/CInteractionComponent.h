@@ -19,14 +19,13 @@ protected:
 
 public:
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
+		
 protected:
 	void FindNearestInteractable();
 
 public:
 	void PrimaryInteraction();
 
-	//Server
 protected:
 	UFUNCTION(Reliable, Server)
 	void ServerInteract(AActor* InFocused);

@@ -1,24 +1,26 @@
-
 #include "CPickupBase.h"
 #include "Components/SphereComponent.h"
+#include "Net/UnrealNetwork.h"
 
 ACPickupBase::ACPickupBase()
 {
 	SphereComp = CreateDefaultSubobject<USphereComponent>("SphereComp");
 	SphereComp->SetCollisionProfileName("Pickup");
 	RootComponent = SphereComp;
-	RespawnTime = 10.f;
 
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("MeshComp");
 	MeshComp->SetupAttachment(RootComponent);
 	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	SetReplicates(true);
+	RespawnTime = 10.f;
+	bIsActive = true;
 
+	SetReplicates(true);
 }
 
 void ACPickupBase::Interact_Implementation(APawn* InstigatorPawn)
 {
+
 }
 
 void ACPickupBase::Show()
@@ -35,6 +37,20 @@ void ACPickupBase::HideAndCooldown()
 
 void ACPickupBase::SetPickupState(bool bNewActive)
 {
-	SetActorEnableCollision(bNewActive);
-	RootComponent->SetVisibility(bNewActive, true);
+	bIsActive = bNewActive;
+	OnRep_IsActive();
+}
+
+void ACPickupBase::OnRep_IsActive()
+{
+	SetActorEnableCollision(bIsActive);
+	RootComponent->SetVisibility(bIsActive, true);
+}
+
+
+void ACPickupBase::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ACPickupBase, bIsActive);
 }

@@ -55,7 +55,6 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("SecondaryAction", EInputEvent::IE_Pressed, this, &ACPlayer::SecondaryAction);
 	PlayerInputComponent->BindAction("ThirdAction", EInputEvent::IE_Pressed, this, &ACPlayer::ThirdAction);
 	PlayerInputComponent->BindAction("PrimaryInteraction", EInputEvent::IE_Pressed, this, &ACPlayer::PrimaryInteraction);
-
 	PlayerInputComponent->BindAction("Sprint", EInputEvent::IE_Pressed, this, &ACPlayer::StartSprint);
 	PlayerInputComponent->BindAction("Sprint", EInputEvent::IE_Released, this, &ACPlayer::StopSprint);
 }
@@ -67,9 +66,12 @@ FVector ACPlayer::GetPawnViewLocation() const
 
 void ACPlayer::OnHealthChanged(AActor* InstigatorActor, UCAttributeComponent* OwningComp, float NewHealth, float Delta)
 {
-	if (Delta < 0)
+	if (Delta < 0.f)
 	{
 		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
+
+		float RageDelta = FMath::Abs(Delta);
+		AttributeComp->ApplyRageChange(this, RageDelta);
 	}
 
 	if (NewHealth <= 0.f && Delta < 0.f)
@@ -102,20 +104,15 @@ void ACPlayer::PrimaryAction()
 	ActionComp->StartActionByName(this, "MagicBall");
 }
 
-
 void ACPlayer::SecondaryAction()
 {
 	ActionComp->StartActionByName(this, "Warp");
 }
 
-
-
 void ACPlayer::ThirdAction()
 {
 	ActionComp->StartActionByName(this, "Blackhole");
 }
-
-
 
 void ACPlayer::PrimaryInteraction()
 {

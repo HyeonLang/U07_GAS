@@ -10,9 +10,9 @@ bool UCAction::CanStart_Implementation(AActor* Instigator)
 		return false;
 	}
 
-	UCActionComponent* ActionComp = GetOwningComponent();
+	UCActionComponent* Comp = GetOwningComponent();
 
-	if (ActionComp->ActiveGamePlayTags.HasAny(BlockedTags))
+	if (Comp->ActiveGameplayTags.HasAny(BlockedTags))
 	{
 		return false;
 	}
@@ -23,12 +23,10 @@ bool UCAction::CanStart_Implementation(AActor* Instigator)
 void UCAction::StartAction_Implementation(AActor* Instigator)
 {
 	UE_LOG(LogTemp, Log, TEXT("Started : %s"), *GetNameSafe(this));
+
+	UCActionComponent* Comp = GetOwningComponent();
+	Comp->ActiveGameplayTags.AppendTags(GrantTags);
 	
-
-	UCActionComponent* ActionComp = GetOwningComponent();
-	ActionComp->ActiveGamePlayTags.AppendTags(GrantTags);
-
-	// 서버일 경우
 	RepData.bIsRunning = true;
 	RepData.Instigator = Instigator;
 }
@@ -36,16 +34,13 @@ void UCAction::StartAction_Implementation(AActor* Instigator)
 void UCAction::StopAction_Implementation(AActor* Instigator)
 {
 	UE_LOG(LogTemp, Log, TEXT("Stopped : %s"), *GetNameSafe(this));
-	
 
-	UCActionComponent* ActionComp = GetOwningComponent();
-	ActionComp->ActiveGamePlayTags.RemoveTags(GrantTags);
+	UCActionComponent* Comp = GetOwningComponent();
+	Comp->ActiveGameplayTags.RemoveTags(GrantTags);
 
-	// 서버일 경우
 	RepData.bIsRunning = false;
 	RepData.Instigator = Instigator;
 }
-
 
 UWorld* UCAction::GetWorld() const
 {
@@ -54,26 +49,24 @@ UWorld* UCAction::GetWorld() const
 	{
 		return Actor->GetWorld();
 	}
+
 	return nullptr;
 }
 
 UCActionComponent* UCAction::GetOwningComponent() const
 {
-	return OwningActionComp;
+	return ActionComp;
 }
 
 void UCAction::SetOwningComponent(UCActionComponent* NewActionComp)
 {
-	OwningActionComp = NewActionComp;
+	ActionComp = NewActionComp;
 }
 
-// 다른 클라의 자기만 호출 : RepData가 서버와 다른 경우
 void UCAction::OnRep_RepData()
 {
 	if (RepData.bIsRunning)
 	{
-		// 로컬 인스티게이터가 아닌 서버 인스티게이터를 넘겨야함
-		// 서버에서 StartAction내의 인스티게이터를 넣어준것을 다시 로컬에 넘겨줌
 		StartAction(RepData.Instigator);
 	}
 	else
@@ -87,12 +80,10 @@ bool UCAction::IsRunning() const
 	return RepData.bIsRunning;
 }
 
-
 void UCAction::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UCAction, RepData);
-	DOREPLIFETIME(UCAction, OwningActionComp);
+	DOREPLIFETIME(UCAction, ActionComp);
 }
-

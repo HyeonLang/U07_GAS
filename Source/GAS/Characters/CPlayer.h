@@ -21,13 +21,12 @@ public:
 	ACPlayer();
 
 	UFUNCTION(Exec)
-	void HealSelf(float Amount = 100.f);
+	void HealSelf(float Amount = 100);
 
 protected:
 	virtual void PostInitializeComponents() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	FVector GetPawnViewLocation() const override;
-
 
 protected:
 	UFUNCTION()
@@ -37,11 +36,8 @@ protected:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 
-
 	void PrimaryAction();
-
 	void SecondaryAction();
-
 	void ThirdAction();
 
 	void PrimaryInteraction();
@@ -61,7 +57,7 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Components")
 	UCAttributeComponent* AttributeComp;
-
+	
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Components")
 	UCActionComponent* ActionComp;
 

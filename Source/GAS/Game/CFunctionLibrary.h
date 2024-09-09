@@ -4,8 +4,6 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "CFunctionLibrary.generated.h"
 
-
-
 UCLASS()
 class GAS_API UCFunctionLibrary : public UBlueprintFunctionLibrary
 {

@@ -1,24 +1,37 @@
-
 #include "CGameMode.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 #include "EngineUtils.h"
 #include "DrawDebugHelpers.h"
-#include "Characters/CBot.h"
+#include "GameFramework/GameStateBase.h"
 #include "Characters/CPlayer.h"
-#include "CPlayerState.h"
+#include "Characters/CBot.h"
 #include "Components/CAttributeComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Serialization/ObjectAndNameAsStringProxyArchive.h"
+#include "CPlayerState.h"
+#include "CSaveGame.h"
+#include "CGameplayInterface.h"
 
 static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("Tore.SpawnBots"), false, TEXT("Enable spawn bots via cvar"), ECVF_Cheat);
 
 ACGameMode::ACGameMode()
 {
-	SpawnTimerDelay = 2.0f;
+	SpawnTimerDelay = 2.f;
 	CreditsPerKill = 20;
 
 	MinimumPickupDistance = 2000;
 	MaxPickupCount = 10;
 
+	SlotName = "Game01";
+
 	PlayerStateClass = ACPlayerState::StaticClass();
+}
+
+void ACGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
+{
+	Super::InitGame(MapName, Options, ErrorMessage);
+
+	LoadSaveGame();
 }
 
 void ACGameMode::StartPlay()
@@ -26,7 +39,7 @@ void ACGameMode::StartPlay()
 	Super::StartPlay();
 
 	GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &ACGameMode::SpawnBotTimerElapsed, SpawnTimerDelay, true);
-	
+
 	if (ensure(PickupClassess.Num() > 0))
 	{
 		UEnvQueryInstanceBlueprintWrapper* QueryInstance = UEnvQueryManager::RunEQSQuery(this, SpawnPickupQuery, this, EEnvQueryRunMode::AllMatching, nullptr);
@@ -37,6 +50,17 @@ void ACGameMode::StartPlay()
 	}
 }
 
+void ACGameMode::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)
+{
+	ACPlayerState* PS = NewPlayer->GetPlayerState<ACPlayerState>();
+	if (PS)
+	{
+		PS->LoadPlayerState(CurrentSaveGame);
+	}
+
+	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
+}
+
 void ACGameMode::KillAll()
 {
 	for (TActorIterator<ACBot> It(GetWorld()); It; ++It)
@@ -44,7 +68,6 @@ void ACGameMode::KillAll()
 		ACBot* Bot = *It;
 
 		UCAttributeComponent* AttributeComp = UCAttributeComponent::GetAttributes(Bot);
-
 		if (ensure(AttributeComp) && AttributeComp->IsAlive())
 		{
 			AttributeComp->Kill(this);
@@ -58,10 +81,11 @@ void ACGameMode::OnActorKilled(AActor* VictimActor, AActor* Killer)
 	if (Player)
 	{
 		FTimerHandle TimerHandle_RespawnDelay;
+
 		FTimerDelegate Delegate;
 		Delegate.BindUFunction(this, "RespawnPlayerElapsed", Player->GetController());
 
-		float RespawnDelay = 2.0f;
+		float RespawnDelay = 2.f;
 		GetWorldTimerManager().SetTimer(TimerHandle_RespawnDelay, Delegate, RespawnDelay, false);
 
 		Player->SetLifeSpan(3.f);
@@ -78,6 +102,15 @@ void ACGameMode::OnActorKilled(AActor* VictimActor, AActor* Killer)
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("OnActorKilled, Victim : %s, Killer : %s"), *GetNameSafe(VictimActor), *GetNameSafe(Killer));
+}
+
+void ACGameMode::RespawnPlayerElapsed(AController* Controller)
+{
+	if (ensure(Controller))
+	{
+		Controller->UnPossess();
+		RestartPlayer(Controller);
+	}
 }
 
 void ACGameMode::SpawnBotTimerElapsed()
@@ -109,15 +142,15 @@ void ACGameMode::SpawnBotTimerElapsed()
 	}
 	if (NrOfAliveBots >= (int32)MaxBotCount)
 	{
-		UE_LOG(LogTemp, Log, TEXT("Reached Maximum bot count %i. Skipping bot Spawn"), NrOfAliveBots);
+		UE_LOG(LogTemp, Log, TEXT("Reached Maximum bot count. Skipping bot spawn"));
 		return;
 	}
 
-	UEnvQueryInstanceBlueprintWrapper* QueryInstance = UEnvQueryManager::RunEQSQuery(this, SpawnBotQuery, this, EEnvQueryRunMode::RandomBest5Pct, nullptr);
-	if (ensure(QueryInstance))
-	{
-		QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &ACGameMode::OnSpawnBotQueryFinished);
-	}
+	 UEnvQueryInstanceBlueprintWrapper* QueryInstance = UEnvQueryManager::RunEQSQuery(this, SpawnBotQuery, this, EEnvQueryRunMode::RandomBest5Pct, nullptr);
+	 if (ensure(QueryInstance))
+	 {
+		 QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &ACGameMode::OnSpawnBotQueryFinished);
+	 }
 }
 
 void ACGameMode::OnSpawnBotQueryFinished(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus)
@@ -128,8 +161,6 @@ void ACGameMode::OnSpawnBotQueryFinished(UEnvQueryInstanceBlueprintWrapper* Quer
 		return;
 	}
 
-	
-
 	TArray<FVector> Locations = QueryInstance->GetResultsAsLocations();
 	if (Locations.IsValidIndex(0))
 	{
@@ -138,17 +169,10 @@ void ACGameMode::OnSpawnBotQueryFinished(UEnvQueryInstanceBlueprintWrapper* Quer
 			UE_LOG(LogTemp, Error, TEXT("Bot Class Ref is not set"));
 			return;
 		}
-		GetWorld()->SpawnActor<AActor>(BotClass, Locations[0], FRotator::ZeroRotator);
-		DrawDebugSphere(GetWorld(), Locations[0], 50.f, 20, FColor::Blue, false, 60.f);
-	}
-}
 
-void ACGameMode::RespawnPlayerElapsed(AController* Controller)
-{
-	if (ensure(Controller))
-	{
-		Controller->UnPossess();
-		RestartPlayer(Controller);
+		GetWorld()->SpawnActor<AActor>(BotClass, Locations[0], FRotator::ZeroRotator);
+
+		DrawDebugSphere(GetWorld(), Locations[0], 50.f, 20, FColor::Blue, false, 60.f);
 	}
 }
 
@@ -163,23 +187,24 @@ void ACGameMode::OnSpawnPickupQueryFinished(UEnvQueryInstanceBlueprintWrapper* Q
 	TArray<FVector> EQSLocations = QueryInstance->GetResultsAsLocations();
 
 	TArray<FVector> UsedLocations;
-
 	int32 SpawnCount = 0;
-	while(SpawnCount < MaxPickupCount && EQSLocations.Num() > 0)
-	{
-		int32 RandonLocationIndex = FMath::RandRange(0, EQSLocations.Num() - 1);
-		FVector SelectedLocation =  EQSLocations[RandonLocationIndex];
 
-		EQSLocations.RemoveAt(RandonLocationIndex);
+	while (SpawnCount < MaxPickupCount && EQSLocations.Num() > 0)
+	{
+		int32 RandomLocationIndex = FMath::RandRange(0, EQSLocations.Num() - 1);
+		FVector SelectedLocation = EQSLocations[RandomLocationIndex];
+
+		EQSLocations.RemoveAt(RandomLocationIndex);
 
 		bool bValidLocation = true;
 		for (FVector UsedLocation : UsedLocations)
 		{
-			float Distance = (UsedLocation - SelectedLocation).Size();
+			float Distance = (SelectedLocation - UsedLocation).Size();
 
 			if (Distance < MinimumPickupDistance)
 			{
 				DrawDebugSphere(GetWorld(), SelectedLocation, 50.f, 20, FColor::Red, false, 10.f);
+
 				bValidLocation = false;
 				break;
 			}
@@ -190,12 +215,100 @@ void ACGameMode::OnSpawnPickupQueryFinished(UEnvQueryInstanceBlueprintWrapper* Q
 			continue;
 		}
 
-		int32 RandomClassIndex = FMath::RandRange(0, PickupClassess.Num() - 1);
+		int32 RandomClassIndex = FMath::RandRange(0, PickupClassess.Num() - 1);;
 		TSubclassOf<AActor> SelectedClass = PickupClassess[RandomClassIndex];
 
 		GetWorld()->SpawnActor<AActor>(SelectedClass, SelectedLocation, FRotator::ZeroRotator);
 
 		UsedLocations.Add(SelectedLocation);
 		SpawnCount++;
+	}
+}
+
+void ACGameMode::WriteSaveGame()
+{
+	//Credit
+	for (int32 i = 0; i < GameState->PlayerArray.Num(); i++)
+	{
+		//Credit
+		ACPlayerState* PS = Cast<ACPlayerState>(GameState->PlayerArray[i]);
+		if (PS)
+		{
+			PS->SavePlayerState(CurrentSaveGame);
+			break;
+		}
+	}
+
+	//Actor
+	CurrentSaveGame->SavedActors.Empty();
+	for (FActorIterator It(GetWorld()); It; ++It)
+	{
+		AActor* Actor = *It;
+		if (!Actor->Implements<UCGameplayInterface>())
+		{
+			continue;
+		}
+
+		FActorSaveData ActorData;
+		ActorData.ActorName = Actor->GetName();
+		ActorData.Transform = Actor->GetTransform();
+
+		FMemoryWriter MemWriter(ActorData.ByteData);
+		FObjectAndNameAsStringProxyArchive Desc(MemWriter, true);
+		Desc.ArIsSaveGame = true;
+		Actor->Serialize(Desc);
+
+		CurrentSaveGame->SavedActors.Add(ActorData);
+	}
+	
+
+	UGameplayStatics::SaveGameToSlot(CurrentSaveGame, SlotName, 0);
+}
+
+void ACGameMode::LoadSaveGame()
+{
+	if (UGameplayStatics::DoesSaveGameExist(SlotName, 0))
+	{
+		CurrentSaveGame = Cast<UCSaveGame>(UGameplayStatics::LoadGameFromSlot(SlotName, 0));
+
+		if (CurrentSaveGame == nullptr)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Faild to load SaveGame Data."));
+			return;
+		}
+
+		UE_LOG(LogTemp, Log, TEXT("Loaded SaveGame Data."));
+
+		for (FActorIterator It(GetWorld()); It; ++It)
+		{
+			AActor* Actor = *It;
+			if (!Actor->Implements<UCGameplayInterface>())
+			{
+				continue;
+			}
+
+			for (FActorSaveData ActorData : CurrentSaveGame->SavedActors)
+			{
+				if (Actor->GetName() == ActorData.ActorName)
+				{
+					Actor->SetActorTransform(ActorData.Transform);
+
+					FMemoryReader MemReader(ActorData.ByteData);
+					FObjectAndNameAsStringProxyArchive Desc(MemReader, true);
+					Desc.ArIsSaveGame = true;
+					Actor->Serialize(Desc);
+
+					ICGameplayInterface::Execute_OnActorLoaded(Actor);
+
+					break;
+				}
+
+			}
+		}
+	}
+	else
+	{
+		CurrentSaveGame = Cast<UCSaveGame>(UGameplayStatics::CreateSaveGameObject(UCSaveGame::StaticClass()));
+		UE_LOG(LogTemp, Log, TEXT("Created new SaveGame Data."));
 	}
 }

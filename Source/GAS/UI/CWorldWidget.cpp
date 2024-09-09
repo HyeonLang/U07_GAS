@@ -1,5 +1,5 @@
 #include "CWorldWidget.h"
-#include "kismet/GameplayStatics.h"
+#include "Kismet/GameplayStatics.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Components/SizeBox.h"
 
@@ -8,12 +8,7 @@ void UCWorldWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
 	FVector2D ScreenPosition;
-
-	if (UGameplayStatics::ProjectWorldToScreen(
-		GetOwningPlayer(),
-		AttachToActor->GetActorLocation() + WorldOffset,
-		ScreenPosition
-	))
+	if (UGameplayStatics::ProjectWorldToScreen(GetOwningPlayer(), AttachToActor->GetActorLocation() + WorldOffset, ScreenPosition))
 	{
 		float ViewportScale = UWidgetLayoutLibrary::GetViewportScale(this);
 		ScreenPosition /= ViewportScale;
@@ -23,5 +18,5 @@ void UCWorldWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 			ParentSizeBox->SetRenderTranslation(ScreenPosition);
 		}
 	}
-
 }
+

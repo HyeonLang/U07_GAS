@@ -6,26 +6,36 @@
 #include "CGameMode.generated.h"
 
 class UEnvQuery;
+class UCSaveGame;
 
 UCLASS()
 class GAS_API ACGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
-
+	
 public:
 	ACGameMode();
 
 protected:
+	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
 	virtual void StartPlay() override;
+	void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) override;
 
-	// Kill
+	//Kill
 public:
 	UFUNCTION(Exec)
 	void KillAll();
 
 	virtual void OnActorKilled(AActor* VictimActor, AActor* Killer);
 
-	// Spawn Bots
+	UFUNCTION()
+	void RespawnPlayerElapsed(AController* Controller);
+
+protected:
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Credits")
+	int32 CreditsPerKill;
+
+	//Spawn Bots
 protected:
 	FTimerHandle TimerHandle_SpawnBots;
 
@@ -47,17 +57,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	UCurveFloat* SpawnCurve;
 
-	UFUNCTION()
-	void RespawnPlayerElapsed(AController* Controller);
-
-
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Credits")
-	int32 CreditsPerKill;
-
 	//Spawn Pickup
 protected:
-
 	UPROPERTY(EditDefaultsOnly, Category = "Pickup")
 	UEnvQuery* SpawnPickupQuery;
 
@@ -72,4 +73,17 @@ protected:
 
 	UFUNCTION()
 	void OnSpawnPickupQueryFinished(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
+
+	//SaveGame
+protected:
+	UPROPERTY()
+	UCSaveGame* CurrentSaveGame;
+
+	FString SlotName;
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "SaveGame")
+	void WriteSaveGame();
+
+	void LoadSaveGame();
 };

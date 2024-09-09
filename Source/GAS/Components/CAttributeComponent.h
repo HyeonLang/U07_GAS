@@ -24,16 +24,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Attributes", meta = (DisplayName = "IsAlive"))
 	static bool IsActorAlive(AActor* Actor);
 
-	// ApplyHealthChange 넷멀티캐스트
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
 	bool ApplyHealthChange(AActor* InstigatorActor, float Delta);
 
 	UFUNCTION(NetMulticast, Reliable)
 	void NetMulticastHealthChanged(AActor* InstigatorActor, float NewHealth, float Delta);
-
-	// ApplyRageChange 넷멀티캐스트
-	UFUNCTION(BlueprintCallable, Category = "Attributes")
-	bool ApplyRageChange(AActor* InstigatorActor, float Delta);
 
 	UFUNCTION(NetMulticast, Reliable)
 	void NetMulticastRageChanged(AActor* InstigatorActor, float NewRage, float Delta);
@@ -45,19 +40,22 @@ public:
 	bool IsFullHealth() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
-	float GetMaxHealth() const;
+	float GetHealth() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
-	float GetHealth() const;
+	float GetMaxHealth() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Cheat")
+	bool Kill(AActor* InstigatorActor);
+
+	UFUNCTION(BlueprintCallable, Category = "Attributes")
+	float GetRage() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
 	float GetMaxRage() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
-	float GetRage() const;
-
-	UFUNCTION(BlueprintCallable, Category = "Cheat")
-	bool Kill(AActor* InstigatorActor);
+	bool ApplyRageChange(AActor* InstigatorActor, float Delta);
 
 public:
 	UPROPERTY(BlueprintAssignable)

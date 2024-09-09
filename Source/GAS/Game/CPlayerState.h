@@ -4,8 +4,9 @@
 #include "GameFramework/PlayerState.h"
 #include "CPlayerState.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnCreditsChanged, ACPlayerState*, PlayerState, int32, NewCredits, int32, Delta);
+class UCSaveGame;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnCreditsChanged, ACPlayerState*, PlayerState, int32, NewCredits, int32, Delta);
 
 UCLASS()
 class GAS_API ACPlayerState : public APlayerState
@@ -22,13 +23,20 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Credits")
 	bool RemoveCredits(int32 Delta);
 
+	UFUNCTION(BlueprintNativeEvent)
+	void SavePlayerState(UCSaveGame* SaveGame);
+
+	UFUNCTION(BlueprintNativeEvent)
+	void LoadPlayerState(UCSaveGame* SaveGame);
+	
 public:
-	UPROPERTY(BlueprintAssignable, Category = "Credits")
+	UPROPERTY(BlueprintAssignable, Category = "Credit")
 	FOnCreditsChanged OnCreditsChanged;
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Credits")
+	UPROPERTY(EditDefaultsOnly, Category = "Credits", ReplicatedUsing = "OnRep_Credits")
 	int32 Credits;
-	
 
+	UFUNCTION()
+	void OnRep_Credits(int32 OldCredits);
 };

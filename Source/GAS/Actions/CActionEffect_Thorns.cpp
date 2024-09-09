@@ -1,4 +1,3 @@
-
 #include "CActionEffect_Thorns.h"
 #include "Components/CActionComponent.h"
 #include "Components/CAttributeComponent.h"
@@ -9,7 +8,7 @@ UCActionEffect_Thorns::UCActionEffect_Thorns()
 	Duration = 0.f;
 	Period = 0.f;
 
-	ReflectRatio = 0.2;
+	ReflectRatio = 0.2f;
 }
 
 void UCActionEffect_Thorns::StartAction_Implementation(AActor* Instigator)
@@ -21,17 +20,18 @@ void UCActionEffect_Thorns::StartAction_Implementation(AActor* Instigator)
 	{
 		AttributeComp->OnHealthChanged.AddDynamic(this, &UCActionEffect_Thorns::OnHealthChanged);
 	}
+
 }
 
 void UCActionEffect_Thorns::StopAction_Implementation(AActor* Instigator)
 {
 	Super::StopAction_Implementation(Instigator);
+
 	UCAttributeComponent* AttributeComp = UCAttributeComponent::GetAttributes(GetOwningComponent()->GetOwner());
 	if (AttributeComp)
 	{
 		AttributeComp->OnHealthChanged.RemoveDynamic(this, &UCActionEffect_Thorns::OnHealthChanged);
 	}
-
 }
 
 void UCActionEffect_Thorns::OnHealthChanged(AActor* InstigatorActor, UCAttributeComponent* OwningComp, float NewValue, float Delta)
@@ -48,5 +48,4 @@ void UCActionEffect_Thorns::OnHealthChanged(AActor* InstigatorActor, UCAttribute
 
 		UCFunctionLibrary::ApplyDamage(OwningActor, InstigatorActor, RoundDamage);
 	}
-
 }

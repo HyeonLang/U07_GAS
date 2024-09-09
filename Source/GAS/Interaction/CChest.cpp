@@ -1,6 +1,6 @@
 #include "CChest.h"
 #include "Components/StaticMeshComponent.h"
-#include "Net/UnrealNetwork.h"	// 리플리케이트
+#include "Net/UnrealNetwork.h"
 
 ACChest::ACChest()
 {
@@ -23,18 +23,21 @@ void ACChest::BeginPlay()
 
 void ACChest::Interact_Implementation(APawn* InstigatorPawn)
 {
+	bLidOpen = !bLidOpen;
+	OnRep_LidOpen();
+}
 
-	bLidOpen = !bLidOpen; // 클라들에서 OnRep_LidOpen함수 호출
-	OnRep_LidOpen(); // 서버에서만 호출
+void ACChest::OnActorLoaded_Implementation()
+{
+	OnRep_LidOpen();
 }
 
 void ACChest::OnRep_LidOpen()
 {
-	float CurrentPitch =  bLidOpen ? MaxPitch : 0.f;
+	float CurrentPitch = bLidOpen ? MaxPitch : 0.f;
 	LidMesh->SetRelativeRotation(FRotator(CurrentPitch, 0, 0));
 }
 
-// 리플리케이트 선언
 void ACChest::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);

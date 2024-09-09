@@ -29,7 +29,6 @@ void UCActionEffect::StartAction_Implementation(AActor* Instigator)
 
 void UCActionEffect::StopAction_Implementation(AActor* Instigator)
 {
-
 	if (GetWorld()->GetTimerManager().GetTimerRemaining(PeriodHandle) < KINDA_SMALL_NUMBER)
 	{
 		ExecutePeriodEffect(Instigator);
@@ -40,13 +39,15 @@ void UCActionEffect::StopAction_Implementation(AActor* Instigator)
 
 	Super::StopAction_Implementation(Instigator);
 
-	UCActionComponent* ActionComp = GetOwningComponent();
-	if (ActionComp)
+	UCActionComponent* Comp = GetOwningComponent();
+	if (Comp)
 	{
-		ActionComp->RemoveAction(this);
+		Comp->RemoveAction(this);
 	}
+	
 }
 
 void UCActionEffect::ExecutePeriodEffect_Implementation(AActor* Instigator)
 {
+	
 }

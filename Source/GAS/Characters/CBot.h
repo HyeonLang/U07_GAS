@@ -17,19 +17,20 @@ class GAS_API ACBot : public ACharacter
 public:
 	ACBot();
 
-
 protected:
 	virtual void PostInitializeComponents() override;
 
-private:
+protected:
 	UFUNCTION()
 	void OnSeePawn(APawn* Pawn);
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void NetMulticastPawnSeen();
+
 
 	UFUNCTION()
 	void OnHealthChanged(AActor* InstigatorActor, UCAttributeComponent* OwningComp, float NewHealth, float Delta);
 
-
-protected:
 	UFUNCTION(BlueprintCallable, Category = "AI")
 	void SetTargetActor(AActor* NewTarget);
 
@@ -46,7 +47,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Components")
 	UCActionComponent* ActionComp;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Imapct")
 	FName TimeToHitParamName;
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI")

@@ -4,7 +4,6 @@
 #include "BehaviorTree/BTService.h"
 #include "CBTService_CheckHealth.generated.h"
 
-
 UCLASS()
 class GAS_API UCBTService_CheckHealth : public UBTService
 {
@@ -12,7 +11,7 @@ class GAS_API UCBTService_CheckHealth : public UBTService
 
 public:
 	UCBTService_CheckHealth();
-
+	
 protected:
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 

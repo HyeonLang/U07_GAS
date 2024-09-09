@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "CCredit.h"
 #include "Game/CPlayerState.h"
 
@@ -23,4 +20,5 @@ void ACCredit::Interact_Implementation(APawn* InstigatorPawn)
 		PS->AddCredits(CreditAmount);
 		HideAndCooldown();
 	}
+	
 }

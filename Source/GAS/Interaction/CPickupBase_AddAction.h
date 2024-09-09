@@ -13,7 +13,7 @@ class GAS_API ACPickupBase_AddAction : public ACPickupBase
 
 public:
 	virtual void Interact_Implementation(APawn* InstigatorPawn) override;
-
+	
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Action")
 	TSubclassOf<UCAction> ActionToGrant;

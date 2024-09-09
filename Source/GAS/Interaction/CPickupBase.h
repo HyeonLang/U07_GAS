@@ -17,7 +17,7 @@ public:
 
 public:
 	virtual void Interact_Implementation(APawn* InstigatorPawn) override;
-	
+
 	UFUNCTION()
 	void Show();
 
@@ -27,14 +27,19 @@ public:
 
 protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
-	UStaticMeshComponent* MeshComp;
+	USphereComponent* SphereComp;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
-	USphereComponent* SphereComp;
+	UStaticMeshComponent* MeshComp;
 
 	UPROPERTY(EditAnywhere, Category = "Pickup")
 	float RespawnTime;
 
 	FTimerHandle TimerHandle_RespawnTimer;
 
+	UPROPERTY(ReplicatedUsing = "OnRep_IsActive")
+	bool bIsActive;
+
+	UFUNCTION()
+	void OnRep_IsActive();
 };
