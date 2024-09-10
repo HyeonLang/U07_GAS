@@ -26,3 +26,21 @@ void ACPotion::Interact_Implementation(APawn* InstigatorPawn)
 	}
 
 }
+
+//FText 사용법
+
+#define LOCTEXT_NAMESPACE "InteractionMessage"
+
+FText ACPotion::GetInteractText_Implementation(APawn* InstigatorPawn)
+{
+	UCAttributeComponent* AttributeComp = UCAttributeComponent::GetAttributes(InstigatorPawn);
+	if (AttributeComp && AttributeComp->IsFullHealth())
+	{
+		return LOCTEXT("Potion_FullHealthWarning", "Health is Already full");
+		// return NSLOCTEXT("SomeNameSpace", "WhatKey", "체력이 꽉 참");
+	}
+
+	return FText::Format(LOCTEXT("Potion_InteractionMessage", "Cost {0} Credits to Restore health."), CreditCost);
+}
+
+#undef LOCTEXT_NAMESPACE

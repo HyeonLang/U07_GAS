@@ -29,6 +29,13 @@ void UCAction::StartAction_Implementation(AActor* Instigator)
 	
 	RepData.bIsRunning = true;
 	RepData.Instigator = Instigator;
+
+	if (Comp->GetOwnerRole() == ROLE_Authority) // 서버라면 서버에서만 실행
+	{
+		TimeStarted = GetWorld()->TimeSeconds;
+	}
+
+	Comp->OnActionStarted.Broadcast(Comp, this);
 }
 
 void UCAction::StopAction_Implementation(AActor* Instigator)
@@ -40,6 +47,8 @@ void UCAction::StopAction_Implementation(AActor* Instigator)
 
 	RepData.bIsRunning = false;
 	RepData.Instigator = Instigator;
+
+	Comp->OnActionStopped.Broadcast(Comp, this);
 }
 
 UWorld* UCAction::GetWorld() const
@@ -86,4 +95,5 @@ void UCAction::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLi
 
 	DOREPLIFETIME(UCAction, RepData);
 	DOREPLIFETIME(UCAction, ActionComp);
+	DOREPLIFETIME(UCAction, TimeStarted);
 }
