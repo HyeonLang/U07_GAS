@@ -25,6 +25,13 @@ ACBot::ACBot()
 	TargetActorKeyName = "TargetActor";
 }
 
+void ACBot::SetBodyColor(FLinearColor InColor)
+{
+	FVector Color = FVector(InColor.R, InColor.G, InColor.B);
+
+	GetMesh()->SetVectorParameterValueOnMaterials("BodyColor", Color);
+}
+
 void ACBot::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();

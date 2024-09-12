@@ -1,19 +1,22 @@
 #include "CGameMode.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 #include "EngineUtils.h"
+#include "Engine/AssetManager.h"
 #include "DrawDebugHelpers.h"
 #include "GameFramework/GameStateBase.h"
 #include "Characters/CPlayer.h"
 #include "Characters/CBot.h"
 #include "Components/CAttributeComponent.h"
+#include "Components/CActionComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Serialization/ObjectAndNameAsStringProxyArchive.h"
 #include "CPlayerState.h"
 #include "CSaveGame.h"
 #include "CGameplayInterface.h"
 #include "CSpawnBotDataAsset.h"
+#include "GAS.h"
 
-static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("Tore.SpawnBots"), false, TEXT("Enable spawn bots via cvar"), ECVF_Cheat);
+static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("Tore.SpawnBots"), true, TEXT("Enable spawn bots via cvar"), ECVF_Cheat);
 
 ACGameMode::ACGameMode()
 {
@@ -147,11 +150,11 @@ void ACGameMode::SpawnBotTimerElapsed()
 		return;
 	}
 
-	 UEnvQueryInstanceBlueprintWrapper* QueryInstance = UEnvQueryManager::RunEQSQuery(this, SpawnBotQuery, this, EEnvQueryRunMode::RandomBest5Pct, nullptr);
-	 if (ensure(QueryInstance))
-	 {
-		 QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &ACGameMode::OnSpawnBotQueryFinished);
-	 }
+	UEnvQueryInstanceBlueprintWrapper* QueryInstance = UEnvQueryManager::RunEQSQuery(this, SpawnBotQuery, this, EEnvQueryRunMode::RandomBest5Pct, nullptr);
+	if (ensure(QueryInstance))
+	{
+		QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &ACGameMode::OnSpawnBotQueryFinished);
+	}
 }
 
 void ACGameMode::OnSpawnBotQueryFinished(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus)
@@ -173,7 +176,59 @@ void ACGameMode::OnSpawnBotQueryFinished(UEnvQueryInstanceBlueprintWrapper* Quer
 			int32 RandomIndex = FMath::RandRange(0, Rows.Num() - 1);
 			FSpawnBotRow* SelectRow = Rows[RandomIndex];
 
-			GetWorld()->SpawnActor<AActor>(SelectRow->BotDataAsset->BotClass, Locations[0], FRotator::ZeroRotator);
+			// 소프트 래퍼런스 데이터 불러오기
+			UAssetManager* AssetManager = UAssetManager::GetIfValid();
+			if (AssetManager)
+			{
+				LogOnScreen(this, "Loading SpawnBot Data Asset...", FColor::Yellow);
+
+				FTransform Transform;
+				Transform.SetLocation(Locations[0]);
+
+				TArray<FName> Bundles;	// 빈 번들은 데이터 전부다 가져옴
+				FStreamableDelegate Delegate = FStreamableDelegate::CreateUObject(this, &ACGameMode::OnDataAssetLoaded, SelectRow->BotDataAssetId, Transform); // 데이터 불러온 후 실행할 딜리게이트
+				// Bind가 아닌 Create는 파라미터 가능 (파라미터 없고 다이나믹이 아닌 딜리게이트)
+				AssetManager->LoadPrimaryAsset(SelectRow->BotDataAssetId, Bundles, Delegate);
+			}
+
+		}
+	}
+}
+
+void ACGameMode::OnDataAssetLoaded(FPrimaryAssetId PrimaryAssetId, FTransform Transform)
+{
+	LogOnScreen(this, PrimaryAssetId.PrimaryAssetName.ToString() + " is Loaded.", FColor::Blue);
+
+
+	// 불러온 데이터 사용하기위해 가져오기
+	UAssetManager* AssetManager = UAssetManager::GetIfValid();
+	if (AssetManager)
+	{
+		UCSpawnBotDataAsset* DataAsset;
+		DataAsset = Cast<UCSpawnBotDataAsset>(AssetManager->GetPrimaryAssetObject(PrimaryAssetId));
+
+		if (DataAsset)
+		{
+			AActor* NewActor = GetWorld()->SpawnActorDeferred<AActor>(DataAsset->BotClass, Transform);
+
+			ACBot* NewBot = Cast<ACBot>(NewActor);
+
+			if (NewBot)
+			{
+				NewBot->SetBodyColor(DataAsset->BotColor);
+
+				UCActionComponent* ActionComp = Cast<UCActionComponent>(NewBot->GetComponentByClass(UCActionComponent::StaticClass()));
+
+				if (ActionComp)
+				{
+					for (TSubclassOf<UCAction> Action : DataAsset->Actions)
+					{
+						ActionComp->AddAction(NewBot, Action);
+					}
+				}
+
+				NewBot->FinishSpawning(Transform);
+			}
 		}
 	}
 }
@@ -232,7 +287,6 @@ void ACGameMode::WriteSaveGame()
 	//Credit
 	for (int32 i = 0; i < GameState->PlayerArray.Num(); i++)
 	{
-		//Credit
 		ACPlayerState* PS = Cast<ACPlayerState>(GameState->PlayerArray[i]);
 		if (PS)
 		{
@@ -243,6 +297,7 @@ void ACGameMode::WriteSaveGame()
 
 	//Actor
 	CurrentSaveGame->SavedActors.Empty();
+
 	for (FActorIterator It(GetWorld()); It; ++It)
 	{
 		AActor* Actor = *It;
@@ -262,7 +317,7 @@ void ACGameMode::WriteSaveGame()
 
 		CurrentSaveGame->SavedActors.Add(ActorData);
 	}
-	
+
 
 	UGameplayStatics::SaveGameToSlot(CurrentSaveGame, SlotName, 0);
 }
@@ -281,6 +336,7 @@ void ACGameMode::LoadSaveGame()
 
 		UE_LOG(LogTemp, Log, TEXT("Loaded SaveGame Data."));
 
+		//Actor
 		for (FActorIterator It(GetWorld()); It; ++It)
 		{
 			AActor* Actor = *It;
@@ -291,7 +347,7 @@ void ACGameMode::LoadSaveGame()
 
 			for (FActorSaveData ActorData : CurrentSaveGame->SavedActors)
 			{
-				if (Actor->GetName() == ActorData.ActorName)
+				if (ActorData.ActorName == Actor->GetName())
 				{
 					Actor->SetActorTransform(ActorData.Transform);
 
@@ -304,7 +360,6 @@ void ACGameMode::LoadSaveGame()
 
 					break;
 				}
-
 			}
 		}
 	}

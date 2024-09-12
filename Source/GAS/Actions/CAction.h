@@ -82,5 +82,5 @@ protected:
 
 	//Icon
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "UI")
-	UTexture2D* Icon;
+	TSoftObjectPtr<UTexture2D> Icon;		// soft 래퍼런스
 };
