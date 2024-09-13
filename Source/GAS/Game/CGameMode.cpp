@@ -35,6 +35,13 @@ void ACGameMode::InitGame(const FString& MapName, const FString& Options, FStrin
 {
 	Super::InitGame(MapName, Options, ErrorMessage);
 
+	FString ParsedValue = UGameplayStatics::ParseOption(Options, "savegame");
+
+	if (ParsedValue.Len() > 0)
+	{
+		SlotName = ParsedValue;
+	}
+
 	LoadSaveGame();
 }
 
